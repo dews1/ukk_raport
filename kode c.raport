@@ -1,0 +1,140 @@
+#include <stdio.h>
+#include <string.h>
+
+
+typedef struct{
+    char nama[50];
+    char nisn[15];
+    char kelas[15];
+    char sekolah[50];
+}Siswa;
+
+typedef struct{
+    char nama[50];
+    int kkm;
+    int nilai;
+    char status[50];
+}Mapel;
+
+
+void tampilkanTabelKKM(Mapel daftar[], int jumlah){
+    printf("==========================================\n");
+    printf("     DAFTAR MATA PELAJARAN DAN KKM        \n");
+    printf("==========================================\n");
+    printf("%-4s %-35s %-s\n", "NO.", "Mata pelajaran", "KKM");
+    printf("------------------------------------------\n");
+    for(int i = 0; i < 5; i++){
+        printf("%-4d %-35s %-d\n", i+1, daftar[i].nama, daftar[i].kkm );
+    }
+    printf("==========================================\n\n");
+
+
+}
+
+char tentukanPredikat(float rata){
+    if(rata  >= 86 && rata <=100) return 'A';
+    if(rata  >= 80 && rata < 86) return 'B';
+    if(rata  >= 76 && rata < 80) return 'C';
+    return 'D';
+}
+
+void tampilkanRapor(Siswa s, Mapel m[], float rata, char predikat){
+    printf("==================================================================\n");
+    printf("                   RAPOR %s\n", s.sekolah);
+    printf("==================================================================\n");
+    printf("Nama Siswa : %-30s NISN : %s\nKelas      : %s\n", s.nama, s.nisn, s.kelas);
+    printf("------------------------------------------------------------------\n");
+    printf("%-4s %-26s %-6s %-6s %s\n", "No.", "Nama Mapel", "KKM", "Nilai", "Status");
+    for (int i = 0; i < 5; i++) {
+        printf("%-4d %-26s %-6d %-6d %s\n", i+1, m[i].nama, m[i].kkm, m[i].nilai, m[i].status);
+    }
+    printf("------------------------------------------------------------------\n");
+    printf("Rata-rata Nilai : %.2f\nPredikat        : %c\n", rata, predikat);
+    printf("==================================================================\n");
+}
+
+void mencetakRaport(Siswa s, Mapel m[], float rata, char predikat){
+    char filename[50];
+    sprintf(filename, "rapor_%s.txt", s.nisn); // Nama file unik berdasarkan NISN
+    FILE *f = fopen(filename, "w");
+
+    if (f == NULL) return;
+
+    fprintf(f, "==================================================================\n");
+    fprintf(f, "                   RAPOR %s\n", s.sekolah);
+    fprintf(f, "==================================================================\n");
+    fprintf(f, "Nama Siswa : %-30s NISN : %s\nKelas      : %s\n", s.nama, s.nisn, s.kelas);
+    fprintf(f, "------------------------------------------------------------------\n");
+    fprintf(f, "%-4s %-26s %-6s %-6s %s\n", "No.", "Nama Mapel", "KKM", "Nilai", "Status");
+    for (int i = 0; i < 5; i++) {
+        fprintf(f, "%-4d %-26s %-6d %-6d %s\n", i+1, m[i].nama, m[i].kkm, m[i].nilai, m[i].status);
+    }
+    fprintf(f, "------------------------------------------------------------------\n");
+    fprintf(f, "Rata-rata Nilai : %.2f\nPredikat        : %c\n", rata, predikat);
+    fprintf(f, "==================================================================\n");
+    fclose(f);
+
+    printf("\nRapor berhasil disimpan ke file '%s'\n", filename);
+}
+
+int main() {
+    Siswa s;
+    char pilihan;
+
+    Mapel daftar[5] = {
+
+      {"Pemograman Web", 76},
+      {"Pemograman Mobile", 76},
+      {"Basis Data", 76},
+      {"PBO", 76},
+      {"Kewirausahaan", 79},
+};
+
+    tampilkanTabelKKM(daftar, 5);
+
+    printf("======== INPUT DATA SISWA ========\n");
+
+    printf("Nama siswa :");
+    scanf("%[^\n]s", s.nama);
+
+    printf("NISN       :");
+    scanf("%s", s.nisn);
+
+    printf("Kelas      :");
+    scanf(" %[^\n]s", s.kelas);
+
+    printf("Sekolah    :");
+    scanf(" %[^\n]s", s.sekolah);
+
+
+    do{
+     float total = 0;
+     printf("\n======== INPUT DATA SISWA ========\n");
+     for (int i = 0; i < 5; i++){
+        printf("Nilai %-25s : ", daftar[i].nama);
+        scanf("%d", &daftar[i].nilai);
+
+        if(daftar[i].nilai >= daftar[i].kkm){
+        strcpy(daftar[i].status, "LULUS");
+        }else{
+            strcpy(daftar[i].status, "TIDAK LULUS");
+        }
+
+        total += daftar[i].nilai;
+     }
+     float rata = total /5;
+     char predikat = tentukanPredikat(rata);
+
+    tampilkanRapor(s, daftar, rata, predikat);
+
+    printf("\nApakah data sudah Benar?\npilih Y untuk mencetak raport\nPilih N untuk input nilai ulang\nPilihan Anda : ");
+    scanf(" %c", &pilihan);
+
+    if(pilihan == 'Y' || pilihan == 'y'){
+        mencetakRaport(s, daftar, rata, predikat);
+    printf("program anda telah selesai");
+    }
+
+    }while (pilihan == 'N' || pilihan == 'n');
+    return 0;
+    }
